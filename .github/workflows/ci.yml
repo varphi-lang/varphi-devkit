@@ -93,7 +93,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/test-varphi
+      url: https://test.pypi.org/p/varphi-devkit
 
     permissions:
       id-token: write
