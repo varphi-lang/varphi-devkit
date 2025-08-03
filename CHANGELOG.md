@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.2 (2025-08-03)
+
+### Bug Fixes
+
+- Ci
+  ([`0e6fbda`](https://github.com/varphi-lang/varphi-devkit/commit/0e6fbda6912e4a4bd2cac403caa51dad7238d739))
+
+
 ## v1.2.1 (2025-08-03)
 
 ### Bug Fixes
