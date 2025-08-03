@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # Enable version updates for Poetry dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "varphi-lang/maintainers"
+    assignees:
+      - "varphi-lang/maintainers"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "varphi-lang/maintainers"
+    assignees:
+      - "varphi-lang/maintainers"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
