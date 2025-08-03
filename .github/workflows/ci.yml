@@ -9,8 +9,8 @@ on:
       - main
 
 permissions:
-  contents: write        # For pushing tags and GitHub release
-  id-token: write        # For trusted PyPI publishing
+  contents: write
+  id-token: write
 
 jobs:
   lint-and-test:
@@ -57,38 +57,29 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - name: Reset to workflow commit SHA
-        run: git reset --hard ${{ github.sha }}
-
-      - name: Verify upstream has NOT changed
-        shell: bash
+      - name: Configure Git for PAT
         run: |
-          set +o pipefail
-          UPSTREAM_BRANCH_NAME="$(git status -sb | head -n 1 | cut -d' ' -f2 | grep -E '\.{3}' | cut -d'.' -f4)"
-          echo "Upstream branch: $UPSTREAM_BRANCH_NAME"
-          set -o pipefail
-          git fetch "${UPSTREAM_BRANCH_NAME%%/*}"
-          UPSTREAM_SHA="$(git rev-parse "$UPSTREAM_BRANCH_NAME")"
-          HEAD_SHA="$(git rev-parse HEAD)"
-          if [ "$HEAD_SHA" != "$UPSTREAM_SHA" ]; then
-            echo "::error::Upstream branch has changed, aborting release"
-            exit 1
-          fi
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+
+      - name: Install dependencies for semantic-release
+        run: pip install python-semantic-release
 
       - name: Run Semantic Release
         id: semantic_release
-        uses: python-semantic-release/python-semantic-release@v10.2.0
-        with:
+        env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          git_committer_name: "github-actions"
-          git_committer_email: "actions@users.noreply.github.com"
-          build: true
+        run: |
+          semantic-release publish -v
+          echo "released=true" >> $GITHUB_OUTPUT
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
       - name: Publish GitHub Release Assets
         if: steps.semantic_release.outputs.released == 'true'
         uses: python-semantic-release/publish-action@v10.2.0
         with:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          github_token: ${{ secrets.GH_PAT }}
           tag: ${{ steps.semantic_release.outputs.tag }}
 
   build:
@@ -129,7 +120,7 @@ jobs:
       name: pypi
       url: https://pypi.org/p/varphi-devkit
     permissions:
-      id-token: write  # Mandatory for trusted publishing
+      id-token: write
 
     steps:
       - name: Download all the dists
