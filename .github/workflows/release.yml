@@ -55,11 +55,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.semantic_release.outputs.tag }}
-
-      - name: Upload distribution artifacts
-        uses: actions/upload-artifact@v4
-        if: steps.semantic_release.outputs.released == 'true'
-        with:
-          name: dist-files
-          path: dist
-          if-no-files-found: error
