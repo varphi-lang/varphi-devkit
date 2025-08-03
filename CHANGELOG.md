@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.0 (2025-08-03)
+
+### Features
+
+- Trigger release
+  ([`efb2612`](https://github.com/varphi-lang/varphi-devkit/commit/efb26124df24abc0a033d653c2a832db1003c187))
+
+
 ## v1.1.1 (2025-08-03)
 
 ### Bug Fixes
