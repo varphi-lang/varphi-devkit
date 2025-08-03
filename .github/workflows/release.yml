@@ -4,78 +4,61 @@ on:
   push:
     branches:
       - main
-      - master
+
+permissions:
+  contents: write  # Needed to push tags, commits, and create GitHub release
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    concurrency: release
-    permissions:
-      id-token: write
-      contents: write
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - name: Reset to workflow commit SHA
+        run: git reset --hard ${{ github.sha }}
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Verify upstream has NOT changed
+        shell: bash
+        run: |
+          set +o pipefail
+          UPSTREAM_BRANCH_NAME="$(git status -sb | head -n 1 | cut -d' ' -f2 | grep -E '\.{3}' | cut -d'.' -f4)"
+          echo "Upstream branch: $UPSTREAM_BRANCH_NAME"
+          set -o pipefail
+          git fetch "${UPSTREAM_BRANCH_NAME%%/*}"
+          UPSTREAM_SHA="$(git rev-parse "$UPSTREAM_BRANCH_NAME")"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          if [ "$HEAD_SHA" != "$UPSTREAM_SHA" ]; then
+            echo "::error::Upstream branch has changed, aborting release"
+            exit 1
+          fi
 
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+      - name: Run Semantic Release
+        id: semantic_release
+        uses: python-semantic-release/python-semantic-release@v10.2.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      - name: Publish GitHub Release Assets
+        if: steps.semantic_release.outputs.released == 'true'
+        uses: python-semantic-release/publish-action@v10.2.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.semantic_release.outputs.tag }}
 
-    - name: Install project
-      run: poetry install --no-interaction
-
-    - name: Run tests
-      run: |
-        poetry run pytest tests/ -v
-
-    - name: Run linting
-      run: |
-        poetry run pylint src/varphi_devkit/ --output-format=text --reports=no --score=no
-
-    - name: Build package
-      run: |
-        poetry build
-
-    - name: Python Semantic Release
-      id: release
-      uses: python-semantic-release/python-semantic-release@v9.12.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Publish package distributions to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      if: steps.release.outputs.released == 'true'
-      # To use trusted publishing, configure your PyPI project settings
-      # or uncomment the following lines and add PYPI_API_TOKEN to secrets
-      # with:
-      #   password: ${{ secrets.PYPI_API_TOKEN }}
-
-    - name: Publish package distributions to GitHub Releases
-      uses: python-semantic-release/upload-to-gh-release@main
-      if: steps.release.outputs.released == 'true'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        tag: ${{ steps.release.outputs.tag }}
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        if: steps.semantic_release.outputs.released == 'true'
+        with:
+          name: dist-files
+          path: dist
+          if-no-files-found: error
