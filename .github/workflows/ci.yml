@@ -71,7 +71,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          semantic-release publish -v
+          semantic-release -vv publish
           echo "released=true" >> $GITHUB_OUTPUT
           echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
