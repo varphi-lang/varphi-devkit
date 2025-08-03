@@ -1,6 +1,6 @@
 [project]
 name = "varphi-devkit"
-version = "1.2.2"
+version = "1.2.3"
 description = "A Python framework for creating compilers that target the Varphi language"
 authors = [
     {name = "Hassan El-Sheikha",email = "hmelsheikha@gmail.com"}
