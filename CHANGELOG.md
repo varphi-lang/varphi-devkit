@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.4 (2025-08-04)
+
+### Bug Fixes
+
+- Test release
+  ([`d5b72ff`](https://github.com/varphi-lang/varphi-devkit/commit/d5b72ff6b659b8a072e48fb3f24387ffd6e0a566))
+
+
 ## v1.1.3 (2025-08-04)
 
 ### Bug Fixes
