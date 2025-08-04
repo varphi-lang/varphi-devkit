@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.2 (2025-08-04)
+
+### Bug Fixes
+
+- PyPi not triggering
+  ([`8114ab7`](https://github.com/varphi-lang/varphi-devkit/commit/8114ab7bf6f7590476ad190d839f24edb7eba4de))
+
+
 ## v1.1.1 (2025-08-04)
 
 ### Bug Fixes
