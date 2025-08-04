@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.1.3 (2025-08-04)
+
+### Bug Fixes
+
+- Fix workflow
+  ([`65dd454`](https://github.com/varphi-lang/varphi-devkit/commit/65dd454bc0e3cb1c936dc168d9b9905aec0bccdd))
+
+
 ## v1.1.2 (2025-08-04)
 
 ### Bug Fixes
