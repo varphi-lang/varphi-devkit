@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.1.1 (2025-08-04)
+
+### Bug Fixes
+
+- Publish to PyPi workflow not running
+  ([`037360e`](https://github.com/varphi-lang/varphi-devkit/commit/037360e01db8ce8c9c6148b22322942c38af2283))
+
+- Workflow
+  ([`a98caff`](https://github.com/varphi-lang/varphi-devkit/commit/a98caff2cf79e68e9aaf82f1bb7aaefdb8307d68))
+
+
 ## v1.1.0 (2025-08-03)
 
 ### Bug Fixes
