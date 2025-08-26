@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.3.0 (2025-08-26)
+
+### Features
+
+- Rename "ONE" to "TALLY" in the VarphiTapeCharacter enum
+  ([`27607d0`](https://github.com/varphi-lang/varphi-devkit/commit/27607d04b9bedf2b59f9f1d915b6463062e5f9ca))
+
+
 ## v1.2.0 (2025-08-26)
 
 ### Features
