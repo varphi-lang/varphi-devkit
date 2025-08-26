@@ -48,7 +48,7 @@ The framework is built around these key components:
 
 ### Data Model
 
-- **`VarphiTapeCharacter`**: Enum for tape symbols (`BLANK="0"`, `ONE="1"`)
+- **`VarphiTapeCharacter`**: Enum for tape symbols (`BLANK="0"`, `TALLY="1"`)
 - **`VarphiHeadDirection`**: Enum for head movement (`LEFT="L"`, `RIGHT="R"`)
 - **`VarphiLine`**: Dataclass representing a transition rule with fields:
   - `if_state`: Current state
@@ -154,7 +154,7 @@ Represents a single transition rule with attributes:
 
 Enum for tape characters:
 - `BLANK = "0"` - Empty tape cell
-- `ONE = "1"` - Marked tape cell
+- `TALLY = "1"` - Marked tape cell
 
 #### `VarphiHeadDirection`
 
