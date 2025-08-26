@@ -52,7 +52,7 @@ The framework is built around these key components:
 - **`VarphiHeadDirection`**: Enum for head movement (`LEFT="L"`, `RIGHT="R"`)
 - **`VarphiLine`**: Dataclass representing a transition rule with fields:
   - `if_state`: Current state
-  - `if_condition`: Current tape character
+  - `if_character`: Current tape character
   - `then_state`: Next state  
   - `then_character`: Character to write
   - `then_direction`: Direction to move
@@ -145,7 +145,7 @@ Abstract base class for implementing custom Varphi compilers.
 
 Represents a single transition rule with attributes:
 - `if_state: str` - Current state
-- `if_condition: VarphiTapeCharacter` - Current tape character
+- `if_character: VarphiTapeCharacter` - Current tape character
 - `then_state: str` - Next state
 - `then_character: VarphiTapeCharacter` - Character to write
 - `then_direction: VarphiHeadDirection` - Head movement direction
