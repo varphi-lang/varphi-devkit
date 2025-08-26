@@ -17,11 +17,11 @@ class VarphiTapeCharacter(Enum):
     """Represents the possible characters on a Turing machine tape.
     
     Attributes:
-        BLANK: Represents the blank/empty tape cell (character '0').
-        ONE: Represents the marked tape cell (character '1').
+        BLANK: Represents a blank/empty tape cell (character '0').
+        TALLY: Represents a marked tape cell (character '1').
     """
     BLANK = "0"
-    ONE = "1"
+    TALLY = "1"
 
 
 class VarphiHeadDirection(Enum):
