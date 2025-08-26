@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.0 (2025-08-26)
+
+### Features
+
+- Rename `if_condition` in `VarphiLine` class to `if_character`
+  ([`6bf0405`](https://github.com/varphi-lang/varphi-devkit/commit/6bf040576f5972eae0c1a2229ff5b865c0702d00))
+
+
 ## v1.1.4 (2025-08-04)
 
 ### Bug Fixes
