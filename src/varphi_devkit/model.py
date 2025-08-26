@@ -41,13 +41,13 @@ class VarphiLine:
     
     Attributes:
         if_state: current state
-        if_condition: current tape character
+        if_character: current tape character
         then_state: next state
         then_character: character to write
         then_direction: direction to move the head
     """
     if_state: str
-    if_condition: VarphiTapeCharacter
+    if_character: VarphiTapeCharacter
     then_state: str
     then_character: VarphiTapeCharacter
     then_direction: VarphiHeadDirection
