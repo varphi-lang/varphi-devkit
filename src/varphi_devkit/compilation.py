@@ -89,7 +89,12 @@ class VarphiCompiler(VarphiListener, ABC):
         then_direction = VarphiHeadDirection(ctx.HEAD_DIRECTION().getText())
         logging.debug("Then direction: %s", then_direction)
         line_number_in_source = ctx.start.line
-        line = VarphiLine(if_state, tape_character, then_state, then_character, then_direction, line_number_in_source)
+        line = VarphiLine(if_state,
+                          tape_character,
+                          then_state,
+                          then_character,
+                          then_direction,
+                          line_number_in_source)
         logging.debug("Delegating to handleLine() helper method")
         self.handle_line(line)
 
