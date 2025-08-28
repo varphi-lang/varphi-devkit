@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.4.0 (2025-08-28)
+
+### Bug Fixes
+
+- Fix linting issues
+  ([`b0a926b`](https://github.com/varphi-lang/varphi-devkit/commit/b0a926b46d2b6c8bbe3a2fc65f3c8935afd2bf47))
+
+### Features
+
+- Add line number field to VarphiLine
+  ([`2da259b`](https://github.com/varphi-lang/varphi-devkit/commit/2da259b3a31aa45d76c894eaf4b3f7907139c205))
+
+
 ## v1.3.0 (2025-08-26)
 
 ### Features
