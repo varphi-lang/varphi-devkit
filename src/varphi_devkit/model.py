@@ -45,9 +45,11 @@ class VarphiLine:
         then_state: next state
         then_character: character to write
         then_direction: direction to move the head
+        line_number_in_source: the corresponding line number in the original source Varphi program
     """
     if_state: str
     if_character: VarphiTapeCharacter
     then_state: str
     then_character: VarphiTapeCharacter
     then_direction: VarphiHeadDirection
+    line_number_in_source: int
