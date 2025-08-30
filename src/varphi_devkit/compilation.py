@@ -21,7 +21,6 @@ Functions:
     compile: Parses a Varphi program and compiles it using the provided compiler.
 """
 
-import logging
 from abc import ABC, abstractmethod
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker
@@ -31,10 +30,6 @@ from .syntax.antlr.VarphiParser import VarphiParser
 from .syntax.antlr.VarphiListener import VarphiListener
 from .syntax.error_listener import VarphiSyntaxErrorListener
 from .model import VarphiTapeCharacter, VarphiHeadDirection, VarphiLine
-
-
-
-logger = logging.getLogger(__name__)
 
 
 class VarphiCompiler(VarphiListener, ABC):
@@ -77,17 +72,11 @@ class VarphiCompiler(VarphiListener, ABC):
         Args:
             ctx: The ANTLR parser context for the line rule
         """
-        logging.debug("Entering line %s", ctx.start.line)
         if_state = str(ctx.STATE(0).getText())
-        logging.debug("If state: %s", if_state)
         tape_character = VarphiTapeCharacter(ctx.TAPE_CHARACTER(0).getText())
-        logging.debug("Tape character: %s", tape_character)
         then_state = str(ctx.STATE(1).getText())
-        logging.debug("Then state: %s", then_state)
         then_character = VarphiTapeCharacter(ctx.TAPE_CHARACTER(1).getText())
-        logging.debug("Then character: %s", then_character)
         then_direction = VarphiHeadDirection(ctx.HEAD_DIRECTION().getText())
-        logging.debug("Then direction: %s", then_direction)
         line_number_in_source = ctx.start.line
         line = VarphiLine(if_state,
                           tape_character,
@@ -95,7 +84,6 @@ class VarphiCompiler(VarphiListener, ABC):
                           then_character,
                           then_direction,
                           line_number_in_source)
-        logging.debug("Delegating to handleLine() helper method")
         self.handle_line(line)
 
 
