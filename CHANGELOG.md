@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.0 (2025-08-30)
+
+### Features
+
+- Remove logging from compilation flow
+  ([`85d7649`](https://github.com/varphi-lang/varphi-devkit/commit/85d7649d7bea79c23cadfbc53944b8bfef8365f9))
+
+
 ## v1.4.0 (2025-08-28)
 
 ### Bug Fixes
