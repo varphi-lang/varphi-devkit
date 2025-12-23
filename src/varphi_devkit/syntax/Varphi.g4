@@ -1,24 +1,43 @@
 grammar Varphi;
 
-// Parser rules
-program : line* EOF;
-line : STATE TAPE_CHARACTER STATE TAPE_CHARACTER HEAD_DIRECTION;
+// ======================================================
+// PARSER RULES
+// ======================================================
 
-// Lexer rules
-fragment LEFT : 'L';
-fragment RIGHT : 'R';
-fragment TALLY : '1';
-fragment BLANK : '0';
+program     : (line? NEWLINE)* line? EOF;
 
-STATE : 'q'[a-zA-Z0-9_]+;
-TAPE_CHARACTER : TALLY | BLANK;
-HEAD_DIRECTION : LEFT | RIGHT;
+line        : state input_tuple state write_tuple move_tuple;
 
-// Single-line comment (starts with // and ends at the end of the line)
-COMMENT : '//' ~[\r\n]* -> skip;
+input_tuple : LPAREN tape_char (COMMA tape_char)* RPAREN;
 
-// Multi-line comment (starts with /* and ends with */, can span multiple lines)
+write_tuple : LPAREN tape_char (COMMA tape_char)* RPAREN;
+
+move_tuple  : LPAREN direction (COMMA direction)* RPAREN;
+
+state       : ID | LEFT_KW | RIGHT_KW | STAY_KW;
+
+tape_char   : CHAR_LITERAL;
+
+direction   : LEFT_KW | RIGHT_KW | STAY_KW;
+
+// ======================================================
+// LEXER RULES
+// ======================================================
+
+LPAREN : '(';
+RPAREN : ')';
+COMMA  : ',';
+
+LEFT_KW  : 'LEFT';
+RIGHT_KW : 'RIGHT';
+STAY_KW  : 'STAY';
+
+// Matches 'x' (1 char) OR '' (0 chars)
+CHAR_LITERAL : '\'' .? '\''; 
+
+ID : ~[ \t\r\n(),']+;
+
+COMMENT       : '//' ~[\r\n]* -> skip;
 MULTI_COMMENT : '/*' .*? '*/' -> skip;
-
-// Skip unnecessary whitespaces
-WHITESPACE : [ \t\r\n]+ -> skip;
+WS            : [ \t]+ -> skip;
+NEWLINE       : '\r'? '\n';
