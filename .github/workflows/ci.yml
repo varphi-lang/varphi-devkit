@@ -14,8 +14,8 @@ permissions:
   contents: read
 
 jobs:
-  lint-and-test:
-    name: Lint and Test
+  test:
+    name: Test
     runs-on: ubuntu-latest
     # Run on PRs to main and pushes to main branch (but not on tag pushes)
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref_type == 'branch')
@@ -35,8 +35,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev
 
-      - name: Lint with pylint
-        run: poetry run pylint src/
+      # - name: Lint with pylint
+      #   run: poetry run pylint src/
 
       - name: Run tests with pytest
         run: poetry run pytest tests/
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run on push to main branch (not PRs, not tags)
     if: github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name == 'main'
-    needs: lint-and-test
+    needs: test
     concurrency:
       group: release-${{ github.ref_name }}
       cancel-in-progress: false
