@@ -1,6 +1,6 @@
 [project]
 name = "varphi-devkit"
-version = "2.0.0"
+version = "2.0.2"
 description = "Development kit for the Varphi language"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -32,7 +32,8 @@ artifacts = [
 # 3. Pytest configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+# REMOVED: pythonpath = ["src"] 
+# (This forces pytest to use the installed package containing the built parser)
 
 [dependency-groups]
 dev = [
