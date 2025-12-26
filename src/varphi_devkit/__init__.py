@@ -1,33 +1,38 @@
 """
-Varphi Development Kit
+The Varphi Development Kit.
 
-A Python toolkit for working with the Varphi language - a domain-specific
-language for describing Turing machine transition rules.
+A framework for building compilers, interpreters, and analysis tools for the Varphi language.
+This package handles the complexity of parsing, validation, and variable canonicalization, providing a
+convenient abstraction layer for implementing custom Varphi backends.
 
-Main Components:
+**Core API:**
+- `VarphiCompiler`: The abstract base class you must subclass. Override `handle_transition` to process logic.
+- `VarphiTransition`: A validated, canonicalized representation of a single transition line.
 
-Model Classes:
-- VarphiTapeCharacter: Represents tape characters (0 for blank, 1 for tally)
-- VarphiHeadDirection: Represents head movement (L for left, R for right)  
-- VarphiLine: Represents a complete transition rule
+**Constants:**
+- `BLANK`, `LEFT`, `RIGHT`, `STAY`: Primitives for tape operations.
 
-Compilation:
-- VarphiCompiler: Abstract base class for implementing Varphi compilers
-- compile: Function to compile Varphi programs using a given compiler
-
-Error Handling:
-- VarphiSyntaxError: Exception raised for syntax errors in Varphi code
+**Exceptions:**
+- `VarphiSyntaxError`: Base class for rich error reporting with source code context.
 """
 
-from .model import VarphiTapeCharacter, VarphiHeadDirection, VarphiLine
-from .compilation import VarphiCompiler, compile_varphi
-from .syntax.error_listener import VarphiSyntaxError
+from .compiler import VarphiCompiler, VarphiTransition, BLANK, LEFT, RIGHT, STAY
+from .exceptions import (
+    VarphiSyntaxError,
+    VarphiTransitionInconsistentTapeCountError,
+    VarphiGlobalTapeCountError,
+    VarphiUndefinedVariableError,
+)
 
 __all__ = [
-    "VarphiTapeCharacter",
-    "VarphiHeadDirection", 
-    "VarphiLine",
     "VarphiCompiler",
-    "compile_varphi",
+    "VarphiTransition",
+    "BLANK",
+    "LEFT",
+    "RIGHT",
+    "STAY",
     "VarphiSyntaxError",
+    "VarphiTransitionInconsistentTapeCountError",
+    "VarphiGlobalTapeCountError",
+    "VarphiUndefinedVariableError",
 ]
