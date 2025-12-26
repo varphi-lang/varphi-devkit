@@ -23,9 +23,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Generate ANTLR Parser
-        run: uv run python scripts/build.py
-
       - name: Run Pytest
         run: uv run pytest
 
@@ -47,9 +44,6 @@ jobs:
           java-version: '17'
 
       - uses: astral-sh/setup-uv@v5
-
-      - name: Generate ANTLR Parser
-        run: uv run python scripts/build.py
 
       - name: Build Package
         run: uv build

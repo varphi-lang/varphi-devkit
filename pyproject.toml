@@ -1,6 +1,6 @@
 [project]
 name = "varphi-devkit"
-version = "2.0.1"
+version = "2.0.0"
 description = "Development kit for the Varphi language"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -8,21 +8,33 @@ dependencies = [
     "antlr4-python3-runtime>=4.13.2",
 ]
 authors = [
-    { name = "varphi", email = "support@varphi-lang.com" }
+    { name = "Hassan El-Sheikha", email = "hassan.elsheikha@utoronto.ca" }
 ]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build.targets.sdist.force-include]
-"src/varphi_devkit/parser" = "src/varphi_devkit/parser"
+# 1. Enable the custom hook defined in hatch_build.py
+[tool.hatch.build.hooks.custom]
 
+# 2. Treat generated files as artifacts
+#    This forces Hatchling to include them even if they are in .gitignore
+[tool.hatch.build]
+artifacts = [
+    "src/varphi_devkit/parser/VarphiLexer.py",
+    "src/varphi_devkit/parser/VarphiParser.py",
+    "src/varphi_devkit/parser/VarphiListener.py",
+    "src/varphi_devkit/parser/*.tokens",
+    "src/varphi_devkit/parser/*.interp",
+]
+
+# 3. Pytest configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0.0",
+    "pytest>=9.0.2",
 ]
