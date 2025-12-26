@@ -29,13 +29,13 @@ jobs:
         run: uv run pytest
 
   build-and-publish:
-    name: Publish to PyPI
+    name: Build, Publish to PyPI & Release
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      contents: write
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -50,3 +50,12 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+      # NEW STEP
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/*
+          generate_release_notes: true
+          make_latest: true
