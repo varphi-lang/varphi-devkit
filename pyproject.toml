@@ -1,6 +1,6 @@
 [project]
 name = "varphi-devkit"
-version = "2.0.4"
+version = "2.0.5"
 description = "A framework for building compilers, interpreters, and analysis tools for the Varphi language."
 readme = "README.md"
 authors = [
