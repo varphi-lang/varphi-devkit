@@ -28,11 +28,6 @@ jobs:
           java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 grammar/Varphi.g4 -o src/varphi_devkit/parser/
           git add -f src/varphi_devkit/parser/
 
-      - name: Force uv to recognize generated files
-        run: |
-          # Dynamically delete any line in .gitignore referencing the parser
-          sed -i '/src\/varphi_devkit\/parser/d' .gitignore
-
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
