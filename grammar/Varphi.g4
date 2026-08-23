@@ -1,8 +1,6 @@
 grammar Varphi;
 
-// ======================================================
-// PARSER RULES
-// ======================================================
+// --- PARSER RULES ---
 
 program : NEWLINE* transition (NEWLINE+ transition)* NEWLINE* EOF;
 
@@ -14,41 +12,32 @@ write_symbols : LPAREN symbol (COMMA symbol)* RPAREN;
 
 shift_directions : LPAREN direction (COMMA direction)* RPAREN;
 
-state_id : ID | ALPHANUM | LEFT_KW | RIGHT_KW | STAY_KW | BLANK_KW;
+state_id : ID | INT | LEFT_KW | RIGHT_KW | STAY_KW | BLANK_KW;
 
-// Updated: Symbol can now be a Variable instead of STAR
-symbol : ALPHANUM | BLANK_KW | VARIABLE;
+symbol : CHAR_LITERAL | INT | BLANK_KW | VARIABLE;
 
 direction : LEFT_KW | RIGHT_KW | STAY_KW;
 
-// ======================================================
-// LEXER RULES
-// ======================================================
+// --- LEXER RULES ---
 
 LPAREN : '(';
 RPAREN : ')';
 COMMA  : ',';
-// STAR rule removed
 
-// New Lexer Rule for Variables (e.g., $x, $val_1)
+CHAR_LITERAL : '\'' ~[\r\n] '\'';
+
 VARIABLE : '$' [a-zA-Z0-9_]+;
 
-// Keywords
 LEFT_KW  : 'LEFT';
 RIGHT_KW : 'RIGHT';
 STAY_KW  : 'STAY';
 BLANK_KW : 'BLANK';
 
-// ------------------------------------------------------
-// PRIORITY RULES
-// ------------------------------------------------------
+INT : [0-9]+;
 
-ALPHANUM : [a-zA-Z0-9];
-ID : [a-zA-Z0-9_]+;
-
-// ------------------------------------------------------
+ID : [a-zA-Z_][a-zA-Z0-9_]*;
 
 COMMENT       : '//' ~[\r\n]* -> skip;
 MULTI_COMMENT : '/*' .*? '*/' -> skip;
-WS            : [ \t]+ -> skip;
+WHITESPACE    : [ \t]+ -> skip;
 NEWLINE       : '\r'? '\n';

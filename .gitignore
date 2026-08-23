@@ -214,3 +214,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+src/varphi_devkit/parser/Varphi*.py
+src/varphi_devkit/parser/*.tokens
+src/varphi_devkit/parser/*.interp

@@ -6,17 +6,19 @@ This package handles the complexity of parsing, validation, and variable canonic
 convenient abstraction layer for implementing custom Varphi backends.
 
 **Core API:**
-- `VarphiCompiler`: The abstract base class you must subclass. Override `handle_transition` to process logic.
+- `VarphiCompiler`: The abstract base class you must subclass. Override `_generate_compiled_program()` to implement custom logic for a compiler.
 - `VarphiTransition`: A validated, canonicalized representation of a single transition line.
-
-**Constants:**
-- `BLANK`, `LEFT`, `RIGHT`, `STAY`: Primitives for tape operations.
-
-**Exceptions:**
-- `VarphiSyntaxError`: Base class for rich error reporting with source code context.
 """
 
-from .compiler import VarphiCompiler, VarphiTransition, BLANK, LEFT, RIGHT, STAY
+from .compiler import (
+    VarphiCompiler,
+    VarphiTransition,
+    Direction,
+    BuiltinSymbol,
+    Variable,
+    Character,
+    ReadWriteTupleElement,
+)
 from .exceptions import (
     VarphiSyntaxError,
     VarphiTransitionInconsistentTapeCountError,
@@ -27,10 +29,11 @@ from .exceptions import (
 __all__ = [
     "VarphiCompiler",
     "VarphiTransition",
-    "BLANK",
-    "LEFT",
-    "RIGHT",
-    "STAY",
+    "Direction",
+    "BuiltinSymbol",
+    "Variable",
+    "Character",
+    "ReadWriteTupleElement",
     "VarphiSyntaxError",
     "VarphiTransitionInconsistentTapeCountError",
     "VarphiGlobalTapeCountError",

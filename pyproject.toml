@@ -1,12 +1,12 @@
 [project]
 name = "varphi-devkit"
-version = "2.0.6"
+version = "3.0.0b1"
 description = "A framework for building compilers, interpreters, and analysis tools for the Varphi language."
 readme = "README.md"
 authors = [
     { name = "Varphi", email = "support@varphi-lang.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
     "antlr4-python3-runtime==4.13.2",
 ]
@@ -18,6 +18,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "antlr4-tools>=0.2.2",
-    "black>=25.12.0",
-    "pytest>=9.0.2",
+    "black",
+    "pytest",
 ]

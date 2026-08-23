@@ -1,78 +1,66 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Optional
+from collections import defaultdict
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker
 
-from .parser import VarphiLexer
-from .parser import VarphiParser
-from .parser import VarphiListener
-
+from .parser import VarphiLexer, VarphiParser, VarphiListener
+from .models import (
+    ReadWriteTupleElement,
+    Character,
+    BuiltinSymbol,
+    Variable,
+    Direction,
+    VarphiTransition,
+)
 from .exceptions import (
     VarphiErrorListener,
     VarphiTransitionInconsistentTapeCountError,
     VarphiGlobalTapeCountError,
     VarphiUndefinedVariableError,
+    VarphiInvalidUnicodeError,
+    VarphiUnknownSymbolError,
+    VarphiUnknownDirectionError,
 )
-
-BLANK = "_"
-LEFT = "LEFT"
-RIGHT = "RIGHT"
-STAY = "STAY"
-
-
-@dataclass(frozen=True)
-class VarphiTransition:
-    """
-    Represents a transition (a single line) in a Varphi program.
-    Attributes:
-        - current_state (str): String containing the name of the state the machine must be on to trigger this transition.
-        - read_symbols (tuple[str, ...]): Tuple of strings containing the values the heads must read to trigger this transition. Strings starting with $ are variables and are guaranteed to be ordered ($1, $2, ...). Otherwise, members may be BLANK or alphanumericals.
-        - next_state (str): The name of the next state to transition to when this transition is triggered.
-        - write_symbols (tuple[str, ...]): Tuple of strings containing the values the heads will write when this transition is triggered. Follows the same format as read_symbols, and variable names appearing here are guaranteed to appear in read_symbols.
-        - shift_directions (tuple[str, ...]): A tuple of strings containing the directions the heads will move in when this transition is triggered. Each element is guaranteed to be one of LEFT, RIGHT, or STAY
-        - line_number (int): The line number in the source code this transition corresponds to.
-    """
-
-    current_state: str
-    read_symbols: tuple[str, ...]
-    next_state: str
-    write_symbols: tuple[str, ...]
-    shift_directions: tuple[str, ...]
-    line_number: int
 
 
 class VarphiCompiler(VarphiListener, ABC):
     """
-    An abstract Varphi compiler.
+    An abstract Varphi compiler and IR generator.
 
-    Concrete Varphi compiler implementations must subclass this class and implement the following methods:
-        - handle_transition(self, transition: VarphiTransition) -> None: Automatically called at compile-time on each transition in the Varphi program
-        - generate_compiled_program(self) -> str: Returns the compiled Varphi program after all transitions have been handled via handle_transition()
-    If __init__() is overridden to add additional attributes (e.g., the compiled program so far), then
-        - super().__init__() must be called
-        - compile(self, program: str) -> str must be overridden to reset the state, followed by a call to super().__init__()
+    Concrete subclasses must implement `_generate_compiled_program()`.
+    When called, the subclass can safely access:
+        - self.states (set[str]): The names of all states in the user's source Varphi program
+        - self.initial_state (str): The name of the first state encountered.
+        - self.ir (dict[str, list[VarphiTransition]]): A map of states to their transitions, sorted by specificity score.
     """
 
-    _expected_tape_count: Optional[int]
+    _tape_count: Optional[int]
+    _raw_transitions: list[VarphiTransition]
+
+    states: set[str]
+    initial_state: Optional[str]
+    ir: dict[str, list[VarphiTransition]]
 
     def __init__(self):
         """Initialize this compiler."""
-        self._expected_tape_count = None
+        self._tape_count = None
+        self._raw_transitions = []
+        self.states = set()
+        self.initial_state = None
+        self.ir = {}
 
     @abstractmethod
-    def handle_transition(self, transition: VarphiTransition) -> None:
-        """Handle a single transition in a Varphi program."""
-        pass
-
-    @abstractmethod
-    def generate_compiled_program(self) -> str:
-        """Generate the compiled program after all transitions have been handled."""
+    def _generate_compiled_program(self) -> str:
+        """Generate the compiled program."""
         pass
 
     def compile(self, program: str) -> str:
         """Compile a Varphi program."""
-        # Reset state (subclasses must do so for their own state too)
-        self._expected_tape_count = None
+        self._tape_count = None
+        self._raw_transitions = []
+        self.states = set()
+        self.initial_state = None
+        self.ir = {}
 
         input_stream = InputStream(program)
         error_listener = VarphiErrorListener()
@@ -90,39 +78,88 @@ class VarphiCompiler(VarphiListener, ABC):
         walker = ParseTreeWalker()
         walker.walk(self, tree)
 
-        return self.generate_compiled_program()
+        self._build_ir()
+
+        return self._generate_compiled_program()
+
+    def _build_ir(self) -> None:
+        """Groups parsed transitions by state and sorts them by specificity."""
+        grouped_transitions: defaultdict[str, list[VarphiTransition]] = defaultdict(
+            list
+        )
+        for transition in self._raw_transitions:
+            grouped_transitions[transition.current_state].append(transition)
+
+        for state, transitions in grouped_transitions.items():
+            transitions.sort(key=lambda transition: transition.specificity)
+            self.ir[state] = transitions
 
     def enterTransition(self, ctx: VarphiParser.TransitionContext) -> None:
-        """Extract information from a raw transition context, and delegate to handle_transition()."""
+        """Process and add a transition to the raw IR."""
         current_state = ctx.current_state.getText()
         next_state = ctx.next_state.getText()
+        self.states.add(current_state)
+        self.states.add(next_state)
 
-        def extract_symbol(symbol_ctx) -> str:
-            """Given a symbol context, extract the corresponding symbol string."""
+        if self.initial_state is None:
+            self.initial_state = current_state
+
+        next_variable_number = 0
+        variable_name_to_variable_object = {}
+
+        def extract_symbol(
+            symbol_ctx, variable_undefined_ok: bool = True
+        ) -> ReadWriteTupleElement:
+            nonlocal next_variable_number, variable_name_to_variable_object
+
             if symbol_ctx.VARIABLE():
-                return symbol_ctx.VARIABLE().getText()
-            if symbol_ctx.BLANK_KW():
-                return BLANK
-            if symbol_ctx.ALPHANUM():
-                return symbol_ctx.ALPHANUM().getText()
-            raise ValueError(f"Unknown symbol type: {symbol_ctx.getText()}")
+                variable_name = symbol_ctx.VARIABLE().getText()
+                if variable_name in variable_name_to_variable_object:
+                    return variable_name_to_variable_object[variable_name]
+                if not variable_undefined_ok:
+                    raise VarphiUndefinedVariableError(symbol_ctx, variable_name)
+                variable_name_to_variable_object[variable_name] = Variable(
+                    next_variable_number
+                )
+                next_variable_number += 1
+                return variable_name_to_variable_object[variable_name]
 
-        def extract_direction(symbol_ctx) -> str:
-            """Given a direction context, extract the corresponding direction string."""
-            if symbol_ctx.LEFT_KW():
-                return LEFT
-            if symbol_ctx.RIGHT_KW():
-                return RIGHT
-            if symbol_ctx.STAY_KW():
-                return STAY
-            raise ValueError(f"Unknown direction: {symbol_ctx.getText()}")
+            if symbol_ctx.BLANK_KW():
+                return BuiltinSymbol.BLANK
+
+            if symbol_ctx.INT():
+                unicode_val = int(symbol_ctx.INT().getText())
+                if not (0 <= unicode_val <= 0x10FFFF):
+                    raise VarphiInvalidUnicodeError(symbol_ctx, unicode_val)
+                return Character(chr(unicode_val))
+
+            if symbol_ctx.CHAR_LITERAL():
+                # Strip the outer single quotes (e.g., "'a'" becomes "a")
+                text = symbol_ctx.CHAR_LITERAL().getText()[1:-1]
+                return Character(text)
+
+            raise VarphiUnknownSymbolError(symbol_ctx, symbol_ctx.getText())
+
+        def extract_direction(direction_ctx) -> Direction:
+            if direction_ctx.LEFT_KW():
+                return Direction.LEFT
+            if direction_ctx.RIGHT_KW():
+                return Direction.RIGHT
+            if direction_ctx.STAY_KW():
+                return Direction.STAY
+            raise VarphiUnknownDirectionError(direction_ctx, direction_ctx.getText())
 
         read_ctx = ctx.read_symbols()
         reads = tuple(extract_symbol(s) for s in read_ctx.symbol()) if read_ctx else ()
 
         write_ctx = ctx.write_symbols()
         writes = (
-            tuple(extract_symbol(s) for s in write_ctx.symbol()) if write_ctx else ()
+            tuple(
+                extract_symbol(s, variable_undefined_ok=False)
+                for s in write_ctx.symbol()
+            )
+            if write_ctx
+            else ()
         )
 
         shift_ctx = ctx.shift_directions()
@@ -132,54 +169,25 @@ class VarphiCompiler(VarphiListener, ABC):
             else ()
         )
 
-        # Check if the tuple-lengths of the transition are all the same
         if len(writes) != len(reads) or len(shifts) != len(reads):
             raise VarphiTransitionInconsistentTapeCountError(
                 ctx, len(reads), len(writes), len(shifts)
             )
 
-        # Use the tuple lengths of the first transition as ground truth and make sure all other transitions are consistent
         current_tape_count = len(reads)
-        if self._expected_tape_count is None:
-            self._expected_tape_count = current_tape_count
-        elif current_tape_count != self._expected_tape_count:
+        if self._tape_count is None:
+            self._tape_count = current_tape_count
+        elif current_tape_count != self._tape_count:
             raise VarphiGlobalTapeCountError(
-                ctx, self._expected_tape_count, current_tape_count
+                ctx, self._tape_count, current_tape_count
             )
-
-        # Map user variables to $1, $2, $3... based on appearance in the read tuple
-        # NOTE: This is just an optimization so that equivalent patterns ($x, $y) and ($y, $x) are easy call "equivalent"
-        variable_map = {}
-        next_var_id = 1
-        canonical_reads = []
-        for sym in reads:
-            if sym.startswith("$"):
-                # Check if we have already assigned an ID to this variable (e.g. read($x, $x))
-                if sym not in variable_map:
-                    variable_map[sym] = f"${next_var_id}"
-                    next_var_id += 1
-                canonical_reads.append(variable_map[sym])
-            else:
-                canonical_reads.append(sym)
-
-        # Map write variables to their canonical versions
-        canonical_writes = []
-        for i, sym in enumerate(writes):
-            if sym.startswith("$"):
-                if sym not in variable_map:
-                    # This variable is not defined in the read tuple
-                    specific_ctx = write_ctx.symbol(i)
-                    raise VarphiUndefinedVariableError(specific_ctx, sym)
-                canonical_writes.append(variable_map[sym])
-            else:
-                canonical_writes.append(sym)
 
         transition = VarphiTransition(
             current_state=current_state,
-            read_symbols=tuple(canonical_reads),
+            read_symbols=reads,
             next_state=next_state,
-            write_symbols=tuple(canonical_writes),
+            write_symbols=writes,
             shift_directions=shifts,
             line_number=ctx.start.line,
         )
-        self.handle_transition(transition)
+        self._raw_transitions.append(transition)

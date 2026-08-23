@@ -120,6 +120,38 @@ class VarphiUndefinedVariableError(VarphiSyntaxError):
         super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
 
 
+class VarphiInvalidSymbolLengthError(VarphiSyntaxError):
+    """Raised when an ID token used as a tape symbol is longer than one character."""
+
+    def __init__(self, ctx, symbol):
+        msg = f"invalid symbol '{symbol}': tape symbols must be exactly one character."
+        super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
+
+
+class VarphiInvalidUnicodeError(VarphiSyntaxError):
+    """Raised when an integer token falls outside the valid unicode code point range."""
+
+    def __init__(self, ctx, value):
+        msg = f"invalid unicode code point '{value}': must be between 0 and 1114111 (0x10FFFF)."
+        super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
+
+
+class VarphiUnknownSymbolError(VarphiSyntaxError):
+    """Raised when an unrecognized token type is encountered in a read/write tuple."""
+
+    def __init__(self, ctx, symbol_text):
+        msg = f"unknown symbol: '{symbol_text}' is not a valid tape symbol."
+        super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
+
+
+class VarphiUnknownDirectionError(VarphiSyntaxError):
+    """Raised when an unrecognized token type is encountered in a shift tuple."""
+
+    def __init__(self, ctx, direction_text):
+        msg = f"unknown direction: '{direction_text}'. Must be LEFT, RIGHT, or STAY."
+        super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
+
+
 class VarphiErrorListener(ErrorListener):
     """Custom ANTLR ErrorListener that converts syntax errors into VarphiSyntaxErrors."""
 
