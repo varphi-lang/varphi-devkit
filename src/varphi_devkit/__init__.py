@@ -26,6 +26,9 @@ from .exceptions import (
     VarphiTransitionInconsistentTapeCountError,
     VarphiGlobalTapeCountError,
     VarphiUndefinedVariableError,
+    VarphiInvalidUnicodeError,
+    VarphiUnknownSymbolError,
+    VarphiUnknownDirectionError,
 )
 
 __all__ = [
@@ -40,4 +43,7 @@ __all__ = [
     "VarphiTransitionInconsistentTapeCountError",
     "VarphiGlobalTapeCountError",
     "VarphiUndefinedVariableError",
+    "VarphiInvalidUnicodeError",
+    "VarphiUnknownSymbolError",
+    "VarphiUnknownDirectionError",
 ]
