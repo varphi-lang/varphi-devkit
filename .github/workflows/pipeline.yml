@@ -26,6 +26,7 @@ jobs:
         run: |
           curl -O https://www.antlr.org/download/antlr-4.13.2-complete.jar
           java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 grammar/Varphi.g4 -o src/varphi_devkit/parser/
+          git add -f src/varphi_devkit/parser/
 
       - name: Force uv to recognize generated files
         run: |
@@ -68,10 +69,7 @@ jobs:
         run: |
           curl -O https://www.antlr.org/download/antlr-4.13.2-complete.jar
           java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 grammar/Varphi.g4 -o src/varphi_devkit/parser/
-
-      - name: Force uv to recognize generated files
-        run: |
-          sed -i '/src\/varphi_devkit\/parser/d' .gitignore
+          git add -f src/varphi_devkit/parser/
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
