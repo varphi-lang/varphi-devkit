@@ -1,12 +1,17 @@
+import sys
 from antlr4.error.ErrorListener import ErrorListener
 from antlr4 import Token
 
-RESET = "\033[0m"
-BOLD = "\033[1m"
-RED = "\033[91m"
-BLUE = "\033[34m"
-CYAN = "\033[96m"
-WHITE = "\033[97m"
+# We won't format if it's not a TTY
+RESET = BOLD = RED = BLUE = CYAN = WHITE = ""
+
+if sys.stdout.isatty():
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    RED = "\033[91m"
+    BLUE = "\033[34m"
+    CYAN = "\033[96m"
+    WHITE = "\033[97m"
 
 
 class VarphiSyntaxError(Exception):
@@ -117,14 +122,6 @@ class VarphiUndefinedVariableError(VarphiSyntaxError):
             f"Undefined variable: '{variable_name}' is used in the write tuple "
             f"but was not defined in the read tuple."
         )
-        super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
-
-
-class VarphiInvalidSymbolLengthError(VarphiSyntaxError):
-    """Raised when an ID token used as a tape symbol is longer than one character."""
-
-    def __init__(self, ctx, symbol):
-        msg = f"invalid symbol '{symbol}': tape symbols must be exactly one character."
         super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
 
 
