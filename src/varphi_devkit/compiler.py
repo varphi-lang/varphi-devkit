@@ -178,9 +178,7 @@ class VarphiCompiler(VarphiListener, ABC):
         if self._tape_count is None:
             self._tape_count = current_tape_count
         elif current_tape_count != self._tape_count:
-            raise VarphiGlobalTapeCountError(
-                ctx, self._tape_count, current_tape_count
-            )
+            raise VarphiGlobalTapeCountError(ctx, self._tape_count, current_tape_count)
 
         transition = VarphiTransition(
             current_state=current_state,

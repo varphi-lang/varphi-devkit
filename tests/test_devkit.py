@@ -23,6 +23,7 @@ class MockCompiler(VarphiCompiler):
 def compiler() -> MockCompiler:
     return MockCompiler()
 
+
 def test_basic_variable_canonicalization(compiler):
     """Test that arbitrary variables map to 0-indexed integers sequentially."""
     compiler.compile("start ($x, $y) next ($y, $x) (LEFT, RIGHT)")
@@ -60,8 +61,18 @@ def test_mixed_symbols_and_directions(compiler):
     compiler.compile(code)
 
     t = compiler.ir["s0"][0]
-    assert t.read_symbols == (Character("a"), BuiltinSymbol.BLANK, Character("x"), Variable(0))
-    assert t.write_symbols == (Character("y"), BuiltinSymbol.BLANK, Character("a"), Variable(0))
+    assert t.read_symbols == (
+        Character("a"),
+        BuiltinSymbol.BLANK,
+        Character("x"),
+        Variable(0),
+    )
+    assert t.write_symbols == (
+        Character("y"),
+        BuiltinSymbol.BLANK,
+        Character("a"),
+        Variable(0),
+    )
     assert t.shift_directions == (
         Direction.LEFT,
         Direction.RIGHT,
@@ -98,12 +109,12 @@ def test_specificity_sorting_order(compiler):
     s0 ('a') s1 ('c') (LEFT)
     """
     compiler.compile(code)
-    
+
     transitions = compiler.ir["s0"]
     # Literal match ('a') should be sorted before variable match ($x)
     assert transitions[0].read_symbols == (Character("a"),)
     assert transitions[0].specificity == (0, 0)
-    
+
     assert transitions[1].read_symbols == (Variable(0),)
     assert transitions[1].specificity == (1, 1)
 
@@ -151,7 +162,7 @@ def test_comments_and_whitespace(compiler):
     s1 ('1') s0 ('0') (RIGHT)
     """
     compiler.compile(code)
-    
+
     total_transitions = sum(len(transitions) for transitions in compiler.ir.values())
     assert total_transitions == 2
 

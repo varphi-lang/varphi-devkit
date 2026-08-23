@@ -52,7 +52,9 @@ class VarphiTransition:
     write_symbols: tuple[ReadWriteTupleElement, ...]
     shift_directions: tuple[Direction, ...]
     line_number: int
-    specificity: tuple[int, int] = field(init=False)  # (unique variables, total variables)
+    specificity: tuple[int, int] = field(
+        init=False
+    )  # (unique variables, total variables)
 
     def __post_init__(self):
         variables = [s for s in self.read_symbols if isinstance(s, Variable)]
