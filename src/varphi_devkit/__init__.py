@@ -10,7 +10,7 @@ convenient abstraction layer for implementing custom Varphi backends.
 - `VarphiTransition`: A validated, canonicalized representation of a single transition line.
 """
 
-__version__ = "3.0.1"
+__version__ = "4.0.0"
 
 from .compiler import (
     VarphiCompiler,
