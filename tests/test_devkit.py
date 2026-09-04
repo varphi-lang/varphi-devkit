@@ -56,8 +56,8 @@ def test_variable_scope_resets_per_transition(compiler):
 
 
 def test_mixed_symbols_and_directions(compiler):
-    """Test quoted CHAR_LITERALs, BLANK_KW, variables, and all shift directions."""
-    code = "s0 ('a', BLANK, 'x', $var) s1 ('y', BLANK, 'a', $var) (LEFT, RIGHT, STAY, STAY)"
+    """Test raw characters, HEX codes, BLANK_KW, variables, and all shift directions."""
+    code = "s0 (a, BLANK, 0x78, $var) s1 (y, BLANK, a, $var) (LEFT, RIGHT, STAY, STAY)"
     compiler.compile(code)
 
     t = compiler.ir["s0"][0]
@@ -83,7 +83,7 @@ def test_mixed_symbols_and_directions(compiler):
 
 def test_keywords_as_state_ids(compiler):
     """Test that keywords can be used as state names."""
-    code = "LEFT ('a') RIGHT ('b') (STAY)"
+    code = "LEFT (a) RIGHT (b) (STAY)"
     compiler.compile(code)
 
     t = compiler.ir["LEFT"][0]
@@ -105,8 +105,8 @@ def test_keywords_as_variable_names(compiler):
 def test_specificity_sorting_order(compiler):
     """Test that the Devkit automatically sorts rules by specificity (literals before variables)."""
     code = """
-    s0 ($x) s2 ('b') (RIGHT)
-    s0 ('a') s1 ('c') (LEFT)
+    s0 ($x) s2 (b) (RIGHT)
+    s0 (a) s1 (c) (LEFT)
     """
     compiler.compile(code)
 
@@ -122,7 +122,7 @@ def test_specificity_sorting_order(compiler):
 def test_error_local_tape_count_mismatch(compiler):
     """Test mismatch between read/write/shift lengths on a single line."""
     with pytest.raises(VarphiTransitionInconsistentTapeCountError) as exc:
-        compiler.compile("s0 ('a', 'b') s1 ('a', 'b', 'c') (LEFT, LEFT)")
+        compiler.compile("s0 (a, b) s1 (a, b, c) (LEFT, LEFT)")
 
     assert "read 2" in exc.value.msg
     assert "wrote 3" in exc.value.msg
@@ -131,8 +131,8 @@ def test_error_local_tape_count_mismatch(compiler):
 def test_error_global_tape_count_mismatch(compiler):
     """Test that tape count must remain consistent across multiple transitions."""
     code = """
-    s0 ('a') s1 ('b') (LEFT)
-    s1 ('a', 'b') s2 ('b', 'a') (LEFT, LEFT)
+    s0 (a) s1 (b) (LEFT)
+    s1 (a, b) s2 (b, a) (LEFT, LEFT)
     """
     with pytest.raises(VarphiGlobalTapeCountError) as exc:
         compiler.compile(code)
@@ -153,13 +153,13 @@ def test_comments_and_whitespace(compiler):
     """Test that comments and spaces are safely skipped while newlines delimit transitions."""
     code = """
     // Start of machine
-    s0 ('0') s1 ('1') (LEFT)   // Inline comment
+    s0 (0) s1 (1) (LEFT)   // Inline comment
     
     /* 
         Multi-line
         Comment 
     */
-    s1 ('1') s0 ('0') (RIGHT)
+    s1 (1) s0 (0) (RIGHT)
     """
     compiler.compile(code)
 
@@ -175,7 +175,7 @@ def test_error_empty_program(compiler):
 
 def test_syntax_error_rich_formatting(compiler):
     """Test that the custom exception __str__ produces the formatted code snippet."""
-    code = "s0 ('a', 'b' s1 ('a', 'b') (LEFT, RIGHT)"
+    code = "s0 (a, b s1 (a, b) (LEFT, RIGHT)"
 
     with pytest.raises(VarphiSyntaxError) as exc:
         compiler.compile(code)
@@ -184,5 +184,5 @@ def test_syntax_error_rich_formatting(compiler):
 
     assert "error:" in error_output
     assert "line 1" in error_output
-    assert "s0 ('a', 'b' s1 ('a', 'b') (LEFT, RIGHT)" in error_output
+    assert "s0 (a, b s1 (a, b) (LEFT, RIGHT)" in error_output
     assert "^" in error_output
