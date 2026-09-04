@@ -186,3 +186,12 @@ def test_syntax_error_rich_formatting(compiler):
     assert "line 1" in error_output
     assert "s0 (a, b s1 (a, b) (LEFT, RIGHT)" in error_output
     assert "^" in error_output
+
+
+def test_error_invalid_symbol_length(compiler):
+    """Test that multi-character symbols raise a specific length error."""
+    with pytest.raises(VarphiUnknownSymbolError) as exc:
+        compiler.compile("s0 (ab) s1 (c) (LEFT)")
+
+    assert "invalid symbol length: 'ab'" in exc.value.msg
+    assert "exactly one character" in exc.value.msg

@@ -134,11 +134,14 @@ class VarphiInvalidUnicodeError(VarphiSyntaxError):
 
 
 class VarphiUnknownSymbolError(VarphiSyntaxError):
-    """Raised when an unrecognized token type or multi-character string is encountered in a tuple."""
+    """Raised when a tape symbol is an unrecognized token or an invalid multi-character string."""
 
     def __init__(self, ctx, symbol_text):
         if len(symbol_text) > 1:
-            msg = f"invalid symbol length: '{symbol_text}'. Tape symbols must be exactly one character (or a 0x hex code, variable, or BLANK)."
+            msg = (
+                f"invalid symbol length: '{symbol_text}'. Tape symbols must be exactly "
+                "one character (or a 0x hex code, variable, or BLANK)."
+            )
         else:
             msg = f"unknown symbol: '{symbol_text}' is not a valid tape symbol."
             
