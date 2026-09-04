@@ -5,6 +5,7 @@ from varphi_devkit import (
     VarphiTransitionInconsistentTapeCountError,
     VarphiGlobalTapeCountError,
     VarphiUndefinedVariableError,
+    VarphiUnknownSymbolError
     Variable,
     Direction,
     BuiltinSymbol,
