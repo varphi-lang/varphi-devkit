@@ -6,7 +6,7 @@ The devkit is a target-language-agnostic frontent that handles lexical analysis,
 
 ---
 
-## 📦 Installation
+## Installation
 
 Assuming you are using a standard Python environment or a modern manager like `uv`:
 

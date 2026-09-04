@@ -127,18 +127,17 @@ class VarphiCompiler(VarphiListener, ABC):
             if symbol_ctx.BLANK_KW():
                 return BuiltinSymbol.BLANK
 
-            if symbol_ctx.INT():
-                unicode_val = int(symbol_ctx.INT().getText())
+            if symbol_ctx.HEX():
+                unicode_val = int(symbol_ctx.HEX().getText(), 16)
                 if not (0 <= unicode_val <= 0x10FFFF):
                     raise VarphiInvalidUnicodeError(symbol_ctx, unicode_val)
                 return Character(chr(unicode_val))
 
-            if symbol_ctx.CHAR_LITERAL():
-                # Strip the outer single quotes (e.g., "'a'" becomes "a")
-                text = symbol_ctx.CHAR_LITERAL().getText()[1:-1]
+            text = symbol_ctx.getText()
+            if len(text) == 1:
                 return Character(text)
 
-            raise VarphiUnknownSymbolError(symbol_ctx, symbol_ctx.getText())
+            raise VarphiUnknownSymbolError(symbol_ctx, text)
 
         def extract_direction(direction_ctx) -> Direction:
             if direction_ctx.LEFT_KW():
