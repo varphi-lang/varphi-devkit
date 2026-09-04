@@ -134,10 +134,13 @@ class VarphiInvalidUnicodeError(VarphiSyntaxError):
 
 
 class VarphiUnknownSymbolError(VarphiSyntaxError):
-    """Raised when an unrecognized token type is encountered in a read/write tuple."""
+    """Raised when a tape symbol is an unrecognized token or an invalid multi-character string."""
 
     def __init__(self, ctx, symbol_text):
-        msg = f"unknown symbol: '{symbol_text}' is not a valid tape symbol."
+        msg = (
+            f"invalid symbol length: '{symbol_text}'. Tape symbols must be exactly "
+            "one character (or a 0x hex code, variable, or BLANK)."
+        )
         super().__init__(None, ctx.start, ctx.start.line, ctx.start.column, msg)
 
 
